@@ -5,6 +5,8 @@ import morgan from "morgan";
 import rateLimiter from "./middleware/rateLimiter.js";
 import errorHandler from "./middleware/errorHandler.js";
 import healthRoute from "./routes/healthRoute.js";
+import profileRoutes from "./routes/profileRoutes.js";
+import statsRoutes from "./routes/statsRoutes.js";
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.use(rateLimiter);
 
 // Routes
 app.use("/health", healthRoute);
+app.use("/api", profileRoutes);
+app.use("/api", statsRoutes);
 
 // 404 handler
 app.use((req, res) => {

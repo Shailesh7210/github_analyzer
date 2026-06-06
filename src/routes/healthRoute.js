@@ -1,8 +1,10 @@
 import { Router } from "express";
 import pool from "../config/database.js";
+import { fetchRateLimit } from "../services/githubService.js";
 
 const router = Router();
 
+// Health check
 router.get("/", async (req, res) => {
   let dbStatus = "connected";
   try {
@@ -20,6 +22,17 @@ router.get("/", async (req, res) => {
     services: {
       database: dbStatus,
     },
+  });
+});
+
+// GitHub rate limit status
+router.get("/github-rate", async (req, res) => {
+  const rateLimit = await fetchRateLimit();
+
+  res.json({
+    status: "success",
+    message: "GitHub API rate limit status",
+    data: rateLimit ?? { error: "Could not fetch rate limit" },
   });
 });
 
