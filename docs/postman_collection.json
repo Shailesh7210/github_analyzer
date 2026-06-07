@@ -1,0 +1,254 @@
+{
+  "info": {
+    "name": "GitHub Profile Analyzer",
+    "description": "A backend service that analyzes GitHub user profiles and stores insights in MySQL",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "username",
+      "value": "torvalds",
+      "type": "string"
+    },
+    {
+      "key": "compare_username",
+      "value": "gaearon",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/health",
+            "description": "Check server and database status"
+          }
+        },
+        {
+          "name": "GitHub Rate Limit",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/health/github-rate",
+            "description": "Check GitHub API rate limit status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profiles",
+      "item": [
+        {
+          "name": "Analyze Profile",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/analyze/{{username}}",
+            "description": "Fetch from GitHub, analyze and store profile"
+          }
+        },
+        {
+          "name": "Analyze Profile (Force Refresh)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/analyze/{{username}}?refresh=true",
+              "query": [{ "key": "refresh", "value": "true" }]
+            },
+            "description": "Force re-fetch from GitHub ignoring cache"
+          }
+        },
+        {
+          "name": "List All Profiles",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/profiles?page=1&limit=10&sort=developer_score&order=DESC",
+              "query": [
+                { "key": "page",  "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "sort",  "value": "developer_score" },
+                { "key": "order", "value": "DESC" }
+              ]
+            },
+            "description": "Get all analyzed profiles with pagination and sorting"
+          }
+        },
+        {
+          "name": "List Profiles by Language",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/profiles?lang=JavaScript",
+              "query": [{ "key": "lang", "value": "JavaScript" }]
+            },
+            "description": "Filter profiles by primary language"
+          }
+        },
+        {
+          "name": "Get Single Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/profiles/{{username}}",
+            "description": "Get full profile details with repos and languages"
+          }
+        },
+        {
+          "name": "Refresh Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/profiles/{{username}}/refresh",
+            "description": "Force re-fetch and update profile from GitHub"
+          }
+        },
+        {
+          "name": "Compare Profiles",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/profiles/{{username}}/compare?with={{compare_username}}",
+              "query": [{ "key": "with", "value": "{{compare_username}}" }]
+            },
+            "description": "Compare two analyzed profiles side by side"
+          }
+        },
+        {
+          "name": "Delete Profile",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/profiles/{{username}}",
+            "description": "Remove a profile from the database"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stats",
+      "item": [
+        {
+          "name": "Platform Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/stats",
+            "description": "Get platform-wide overview stats"
+          }
+        },
+        {
+          "name": "Leaderboard",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/stats/leaderboard?sort_by=developer_score&limit=10",
+              "query": [
+                { "key": "sort_by", "value": "developer_score" },
+                { "key": "limit",   "value": "10" }
+              ]
+            },
+            "description": "Get ranked leaderboard of developers"
+          }
+        },
+        {
+          "name": "Leaderboard by Followers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/stats/leaderboard?sort_by=followers&limit=10",
+              "query": [
+                { "key": "sort_by", "value": "followers" },
+                { "key": "limit",   "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Leaderboard by Language",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/stats/leaderboard?lang=JavaScript",
+              "query": [{ "key": "lang", "value": "JavaScript" }]
+            }
+          }
+        },
+        {
+          "name": "Leaderboard by Tier",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/stats/leaderboard?tier=Active",
+              "query": [{ "key": "tier", "value": "Active" }]
+            }
+          }
+        },
+        {
+          "name": "Language Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/stats/languages",
+            "description": "Get language breakdown across all profiles"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Edge Cases",
+      "item": [
+        {
+          "name": "Invalid Username Format",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/analyze/-invalid-",
+            "description": "Should return 400"
+          }
+        },
+        {
+          "name": "Non-existent GitHub User",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/analyze/this-user-xyz-does-not-exist-999",
+            "description": "Should return 404"
+          }
+        },
+        {
+          "name": "Profile Not in DB",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/profiles/this-user-xyz-does-not-exist-999",
+            "description": "Should return 404"
+          }
+        },
+        {
+          "name": "Compare Without With Param",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/profiles/{{username}}/compare",
+            "description": "Should return 400"
+          }
+        },
+        {
+          "name": "Invalid Leaderboard Sort",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/stats/leaderboard?sort_by=invalid_field",
+            "description": "Should return 400"
+          }
+        },
+        {
+          "name": "Unknown Route",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/unknown",
+            "description": "Should return 404"
+          }
+        }
+      ]
+    }
+  ]
+}
