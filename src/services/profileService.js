@@ -245,7 +245,7 @@ export const getAllProfiles = async ({ page = 1, limit = 10, sort = "created_at"
     params.push(lang);
   }
 
-  const [profiles] = await pool.execute(
+const [profiles] = await pool.execute(
     `SELECT
       id, username, name, avatar_url, bio, location,
       public_repos, followers, following, total_stars,
@@ -254,8 +254,8 @@ export const getAllProfiles = async ({ page = 1, limit = 10, sort = "created_at"
      FROM profiles
      ${whereClause}
      ORDER BY ${sortCol} ${sortOrder}
-     LIMIT ? OFFSET ?`,
-    [...params, limit, offset]
+     LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`,
+    [...params]
   );
 
   const [[{ total }]] = await pool.execute(
